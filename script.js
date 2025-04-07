@@ -1,28 +1,46 @@
-async function getQuote() {
-  const quoteEl = document.getElementById("quote");
-  const authorEl = document.getElementById("author");
-  const timingEl = document.getElementById("timing");
+const quoteEl = document.getElementById("quote");
+const authorEl = document.getElementById("author");
+const timingEl = document.getElementById("timing");
 
-  quoteEl.textContent = "Fetching quote...";
-  authorEl.textContent = "";
-  timingEl.textContent = "";
+document.addEventListener("DOMContentLoaded", () => {
+  getQuote();
+});
+
+async function getQuote() {
+  resetDisplay();
 
   const startTime = performance.now();
 
   try {
-    const res = await fetch("https://dummyjson.com/quotes/random");
-    const data = await res.json();
-    const endTime = performance.now();
-
-    const timeTaken = (endTime - startTime).toFixed(2);
-
-    quoteEl.textContent = `"${data.quote}"`;
-    authorEl.textContent = `— ${data.author}`;
-    timingEl.textContent = `⏱️ Fetched in ${timeTaken} ms`;
-  } catch (err) {
-    quoteEl.textContent = "Failed to load quote.";
-    console.error(err);
+    const data = await fetchQuote();
+    const timeTaken = (performance.now() - startTime).toFixed(2);
+    displayQuote(data, timeTaken);
+  } catch (error) {
+    handleError(error);
   }
 }
 
-document.addEventListener("DOMContentLoaded", getQuote);
+function resetDisplay() {
+  quoteEl.textContent = "Fetching quote...";
+  authorEl.textContent = "";
+  timingEl.textContent = "";
+}
+
+async function fetchQuote() {
+  const response = await fetch("https://dummyjson.com/quotes/random");
+  if (!response.ok) {
+    throw new Error(`HTTP error: ${response.status}`);
+  }
+  return await response.json();
+}
+
+function displayQuote(data, time) {
+  quoteEl.textContent = `"${data.quote}"`;
+  authorEl.textContent = `— ${data.author}`;
+  timingEl.textContent = `⏱️ Fetched in ${time} ms`;
+}
+
+function handleError(error) {
+  quoteEl.textContent = "Failed to load quote.";
+  console.error("Quote fetch error:", error);
+}
