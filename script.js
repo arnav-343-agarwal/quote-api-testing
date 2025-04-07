@@ -1,21 +1,28 @@
-const quoteText = document.getElementById("quote");
-const authorText = document.getElementById("author");
-const newQuoteBtn = document.getElementById("new-quote");
-
 async function getQuote() {
-  quoteText.textContent = "Loading...";
-  authorText.textContent = "";
+  const quoteEl = document.getElementById("quote");
+  const authorEl = document.getElementById("author");
+  const timingEl = document.getElementById("timing");
+
+  quoteEl.textContent = "Fetching quote...";
+  authorEl.textContent = "";
+  timingEl.textContent = "";
+
+  const startTime = performance.now();
+
   try {
     const res = await fetch("https://dummyjson.com/quotes/random");
     const data = await res.json();
-    quoteText.textContent = `"${data.quote}"`;
-    authorText.textContent = `— ${data.author}`;
+    const endTime = performance.now();
+
+    const timeTaken = (endTime - startTime).toFixed(2);
+
+    quoteEl.textContent = `"${data.quote}"`;
+    authorEl.textContent = `— ${data.author}`;
+    timingEl.textContent = `⏱️ Fetched in ${timeTaken} ms`;
   } catch (err) {
-    quoteText.textContent = "Failed to fetch quote. Try again.";
+    quoteEl.textContent = "Failed to load quote.";
+    console.error(err);
   }
 }
 
-newQuoteBtn.addEventListener("click", getQuote);
-
-// Load a quote on start
-getQuote();
+document.addEventListener("DOMContentLoaded", getQuote);
